@@ -5,7 +5,7 @@ import urllib.request
 from datetime import date
 
 JOKES_PER_DAY = 30
-NEW_JOKES_TO_FETCH = 10  # сколько новых анекдотов пытаться подтянуть за раз
+NEW_JOKES_TO_FETCH = 10
 API_URL = "http://rzhunemogu.ru/RandJSON.aspx?CType=1"
 
 
@@ -18,15 +18,14 @@ def fetch_one_joke() -> str | None:
         print(f"Ошибка запроса: {e}")
         return None
 
-    # Ответ вида {"content":"текст с непеработанными переносами строк"}
-    # чиним переносы строк перед парсингом JSON
     fixed = raw.replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n")
     match = re.search(r'"content"\s*:\s*"(.*)"\s*}', fixed, re.DOTALL)
     if not match:
         return None
 
     text = match.group(1)
-    text = text.replace('\\"', '"')  # на всякий случай
+    text = text.replace('\\"', '"')
+    text = text.replace("\\n", "\n")  # превращаем текстовые \n в настоящий перенос строки
     return text.strip() if text.strip() else None
 
 
