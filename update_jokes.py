@@ -4,7 +4,7 @@ import re
 import urllib.request
 from datetime import date
 
-JOKES_PER_DAY = 5
+JOKES_PER_DAY = 30
 NEW_JOKES_TO_FETCH = 10  # сколько новых анекдотов пытаться подтянуть за раз
 API_URL = "http://rzhunemogu.ru/RandJSON.aspx?CType=1"
 
