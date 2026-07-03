@@ -28,6 +28,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add jokes.json
+          git add jokes.json all_jokes.json
           git commit -m "Update jokes for $(date -u +%Y-%m-%d)" || echo "No changes"
           git push
