@@ -1,10 +1,8 @@
 import json
-import random
 import re
 import urllib.request
 from datetime import date
 
-JOKES_PER_DAY = 30
 NEW_JOKES_TO_FETCH = 10
 API_URL = "http://rzhunemogu.ru/RandJSON.aspx?CType=1"
 
@@ -55,13 +53,10 @@ def main():
     save_all_jokes(all_jokes)
 
     today = date.today().isoformat()
-    rng = random.Random(today)
-    selected = rng.sample(all_jokes, min(JOKES_PER_DAY, len(all_jokes)))
-
     with open("jokes.json", "w", encoding="utf-8") as f:
-        json.dump({"date": today, "jokes": selected}, f, ensure_ascii=False, indent=2)
+        json.dump({"date": today, "jokes": all_jokes}, f, ensure_ascii=False, indent=2)
 
-    print(f"jokes.json обновлён на {today}: {len(selected)} анекдотов")
+    print(f"jokes.json обновлён на {today}: всего анекдотов в базе — {len(all_jokes)}")
 
 
 if __name__ == "__main__":
