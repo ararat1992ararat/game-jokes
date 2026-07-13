@@ -6,6 +6,8 @@ import urllib.request
 
 GROUP_ID = os.environ["VK_GROUP_ID"]
 ACCESS_TOKEN = os.environ["VK_ACCESS_TOKEN"]
+JOKES_PER_POST = 5
+SEPARATOR = "\n\n➖➖➖\n\n"
 SIGNATURE = "\n\n📌 Анекдоты каждый день — подпишись!\nhttps://t.me/+AvQyxbNRhntkZDBi"
 API_URL = "https://api.vk.com/method/wall.post"
 API_VERSION = "5.199"
@@ -29,6 +31,24 @@ def save_posted(posted: list[str]) -> None:
         json.dump({"posted": posted}, f, ensure_ascii=False, indent=2)
 
 
+def pick_jokes(all_jokes: list[str], posted: list[str], count: int) -> tuple[list[str], list[str]]:
+    posted_set = set(posted)
+    unposted = [j for j in all_jokes if j not in posted_set]
+    picked: list[str] = []
+
+    while len(picked) < count:
+        if not unposted:
+            posted = []
+            unposted = [j for j in all_jokes if j not in picked]
+            if not unposted:
+                break
+        joke = random.choice(unposted)
+        unposted.remove(joke)
+        picked.append(joke)
+
+    return picked, posted + picked
+
+
 def post_to_wall(text: str) -> None:
     params = {
         "owner_id": f"-{GROUP_ID}",
@@ -49,23 +69,17 @@ def post_to_wall(text: str) -> None:
 def main() -> None:
     all_jokes = load_jokes()
     posted = load_posted()
-    posted_set = set(posted)
 
-    unposted = [j for j in all_jokes if j not in posted_set]
-    if not unposted:
-        posted = []
-        unposted = all_jokes
-
-    if not unposted:
+    picked, posted = pick_jokes(all_jokes, posted, JOKES_PER_POST)
+    if not picked:
         print("Нет анекдотов для публикации")
         return
 
-    joke = random.choice(unposted)
-    post_to_wall(joke + SIGNATURE)
+    message = SEPARATOR.join(picked) + SIGNATURE
+    post_to_wall(message)
 
-    posted.append(joke)
     save_posted(posted)
-    print("Опубликовано в ВК:", joke[:60])
+    print(f"Опубликовано в ВК {len(picked)} анекдотов")
 
 
 if __name__ == "__main__":

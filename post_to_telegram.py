@@ -5,6 +5,8 @@ import urllib.parse
 import urllib.request
 
 CHANNEL = "@anekdoty_daily"
+JOKES_PER_POST = 5
+SEPARATOR = "\n\n➖➖➖\n\n"
 SIGNATURE = "\n\n📌 Анекдоты каждый день — подпишись!\nhttps://t.me/+AvQyxbNRhntkZDBi"
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
@@ -28,6 +30,24 @@ def save_posted(posted: list[str]) -> None:
         json.dump({"posted": posted}, f, ensure_ascii=False, indent=2)
 
 
+def pick_jokes(all_jokes: list[str], posted: list[str], count: int) -> tuple[list[str], list[str]]:
+    posted_set = set(posted)
+    unposted = [j for j in all_jokes if j not in posted_set]
+    picked: list[str] = []
+
+    while len(picked) < count:
+        if not unposted:
+            posted = []
+            unposted = [j for j in all_jokes if j not in picked]
+            if not unposted:
+                break
+        joke = random.choice(unposted)
+        unposted.remove(joke)
+        picked.append(joke)
+
+    return picked, posted + picked
+
+
 def send_message(text: str) -> None:
     data = urllib.parse.urlencode({"chat_id": CHANNEL, "text": text}).encode()
     req = urllib.request.Request(API_URL, data=data)
@@ -38,23 +58,17 @@ def send_message(text: str) -> None:
 def main() -> None:
     all_jokes = load_jokes()
     posted = load_posted()
-    posted_set = set(posted)
 
-    unposted = [j for j in all_jokes if j not in posted_set]
-    if not unposted:
-        posted = []
-        unposted = all_jokes
-
-    if not unposted:
+    picked, posted = pick_jokes(all_jokes, posted, JOKES_PER_POST)
+    if not picked:
         print("Нет анекдотов для публикации")
         return
 
-    joke = random.choice(unposted)
-    send_message(joke + SIGNATURE)
+    message = SEPARATOR.join(picked) + SIGNATURE
+    send_message(message)
 
-    posted.append(joke)
     save_posted(posted)
-    print("Опубликовано:", joke[:60])
+    print(f"Опубликовано {len(picked)} анекдотов")
 
 
 if __name__ == "__main__":
