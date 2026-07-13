@@ -7,7 +7,7 @@ import urllib.request
 GROUP_ID = os.environ["VK_GROUP_ID"]
 ACCESS_TOKEN = os.environ["VK_ACCESS_TOKEN"]
 JOKES_PER_POST = 5
-SEPARATOR = "\n\n➖➖➖\n\n"
+SEPARATOR = "\n\n———\n\n"
 SIGNATURE = "\n\n📌 Анекдоты каждый день — подпишись!"
 API_URL = "https://api.vk.com/method/wall.post"
 API_VERSION = "5.199"

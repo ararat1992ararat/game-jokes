@@ -7,7 +7,7 @@ import urllib.request
 
 CHANNEL = "@anekdoty_daily"
 JOKES_PER_POST = 5
-SEPARATOR = "\n\n➖➖➖\n\n"
+SEPARATOR = "\n\n———\n\n"
 INVITE_LINK = "https://t.me/+AvQyxbNRhntkZDBi"
 SIGNATURE = f'\n\n📌 <a href="{INVITE_LINK}">Анекдоты каждый день — подпишись!</a>'
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
