@@ -1,3 +1,4 @@
+import html
 import json
 import os
 import random
@@ -7,7 +8,8 @@ import urllib.request
 CHANNEL = "@anekdoty_daily"
 JOKES_PER_POST = 5
 SEPARATOR = "\n\n➖➖➖\n\n"
-SIGNATURE = "\n\n📌 Анекдоты каждый день — подпишись!\nhttps://t.me/+AvQyxbNRhntkZDBi"
+INVITE_LINK = "https://t.me/+AvQyxbNRhntkZDBi"
+SIGNATURE = f'\n\n📌 <a href="{INVITE_LINK}">Анекдоты каждый день — подпишись!</a>'
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 POSTED_PATH = "posted_jokes.json"
@@ -49,7 +51,8 @@ def pick_jokes(all_jokes: list[str], posted: list[str], count: int) -> tuple[lis
 
 
 def send_message(text: str) -> None:
-    data = urllib.parse.urlencode({"chat_id": CHANNEL, "text": text}).encode()
+    params = {"chat_id": CHANNEL, "text": text, "parse_mode": "HTML"}
+    data = urllib.parse.urlencode(params).encode()
     req = urllib.request.Request(API_URL, data=data)
     with urllib.request.urlopen(req, timeout=15) as resp:
         print(resp.read().decode("utf-8"))
@@ -64,7 +67,8 @@ def main() -> None:
         print("Нет анекдотов для публикации")
         return
 
-    message = SEPARATOR.join(picked) + SIGNATURE
+    escaped = [html.escape(joke) for joke in picked]
+    message = SEPARATOR.join(escaped) + SIGNATURE
     send_message(message)
 
     save_posted(posted)
