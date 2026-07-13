@@ -5,7 +5,7 @@ import urllib.parse
 import urllib.request
 
 CHANNEL = "@anekdoty_daily"
-SIGNATURE = "\n\n📌 Анекдоты каждый день — подпишись!"
+SIGNATURE = "\n\n📌 Анекдоты каждый день — подпишись!\nhttps://t.me/+AvQyxbNRhntkZDBi"
 BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 POSTED_PATH = "posted_jokes.json"
