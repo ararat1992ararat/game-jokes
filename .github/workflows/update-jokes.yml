@@ -31,3 +31,11 @@ jobs:
           git add jokes.json all_jokes.json
           git commit -m "Update jokes for $(date -u +%Y-%m-%d)" || echo "No changes"
           git push
+
+      - name: Upload jokes.json to Yandex Object Storage
+        if: ${{ secrets.YC_ACCESS_KEY_ID != '' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YC_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_SECRET_ACCESS_KEY }}
+        run: |
+          aws --endpoint-url=https://storage.yandexcloud.net s3 cp jokes.json s3://anekdoty-jokes/jokes.json --acl public-read
