@@ -8,6 +8,19 @@ from datetime import date
 NEW_JOKES_TO_FETCH = 10
 API_URL = "http://rzhunemogu.ru/RandJSON.aspx?CType=1"
 
+CYRILLIC_RE = re.compile(r"[а-яА-ЯёЁ]")
+LETTER_RE = re.compile(r"[a-zA-Zа-яА-ЯёЁ]")
+
+
+## rzhunemogu.ru's own database has leaked at least one raw SQL injection
+## probe (a WAITFOR/DELAY payload) through this API and into our joke pool -
+## reject anything that isn't mostly Cyrillic text before it gets accepted.
+def is_junk(text: str) -> bool:
+    letters = LETTER_RE.findall(text)
+    if not letters:
+        return True
+    return (len(CYRILLIC_RE.findall(text)) / len(letters)) < 0.5
+
 
 def fetch_one_joke() -> str | None:
     try:
@@ -46,7 +59,7 @@ def main():
     fetched_count = 0
     for _ in range(NEW_JOKES_TO_FETCH):
         joke = fetch_one_joke()
-        if joke and joke not in existing and 10 < len(joke) < 1000:
+        if joke and joke not in existing and 10 < len(joke) < 1000 and not is_junk(joke):
             all_jokes.append(joke)
             existing.add(joke)
             fetched_count += 1
